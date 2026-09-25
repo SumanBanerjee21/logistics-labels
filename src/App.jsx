@@ -22,12 +22,14 @@ import Pricing from './pages/Pricing';
 
 // Components
 import Footer from './components/Footer';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="flex flex-col min-h-screen">
+          <Navbar />
           <main className="flex-grow">
             <Routes>
               <Route path="/login" element={<Login />} />

@@ -5,22 +5,6 @@ import { Check, Truck } from 'lucide-react';
 export default function Pricing() {
   return (
     <div className="min-h-screen bg-brand-gray">
-      {/* Header */}
-      <header className="bg-white shadow-sm py-4 px-6">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Truck size={28} className="text-brand-teal" />
-            <div>
-              <h1 className="text-lg font-bold text-brand-dark leading-tight">BANERJEE</h1>
-              <p className="text-[9px] uppercase font-bold text-brand-orange tracking-widest">Services</p>
-            </div>
-          </div>
-          <Link to="/login" className="bg-brand-teal text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-600 transition">
-            Login / Sign Up
-          </Link>
-        </div>
-      </header>
-
       {/* Hero */}
       <div className="text-center py-16 px-4">
         <h2 className="text-4xl font-extrabold text-slate-800 mb-4">Logistics Label Printing Service</h2>

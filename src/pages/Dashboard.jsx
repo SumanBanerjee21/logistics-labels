@@ -85,6 +85,9 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/pricing')} className="p-2 bg-gray-100 rounded-full text-brand-teal hover:bg-teal-50 transition font-bold text-xs uppercase px-4 flex items-center gap-1" title="Pricing List">
+              Pricing
+            </button>
             <button onClick={() => navigate(-1)} className="p-2 bg-gray-100 rounded-full text-gray-500 hover:text-brand-teal hover:bg-teal-50 transition" title="Go Back">
               <ArrowLeft size={20} />
             </button>
