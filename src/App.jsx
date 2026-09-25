@@ -18,6 +18,7 @@ import Contact from './pages/legal/Contact';
 import Terms from './pages/legal/Terms';
 import Privacy from './pages/legal/Privacy';
 import Refund from './pages/legal/Refund';
+import Pricing from './pages/Pricing';
 
 // Components
 import Footer from './components/Footer';
@@ -44,6 +45,7 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/refund" element={<Refund />} />
+              <Route path="/pricing" element={<Pricing />} />
             </Routes>
           </main>
           <Footer />
