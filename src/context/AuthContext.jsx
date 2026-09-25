@@ -21,37 +21,48 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  const login = (username, password) => {
+  const login = (userId, password) => {
     const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-    const user = users[username];
+    const user = users[userId];
 
-    // User found and password matches → login
     if (user && user.password === password) {
       setCurrentUser(user);
       return true;
     }
+    return false; // Real login: fail if wrong credentials
+  };
 
-    // User not found → auto-register as fresh user
-    if (!user) {
-      const newUser = { username, password, plan: null, pagesPrinted: 0, companyName: '', subscriptionDate: null };
-      setCurrentUser(newUser);
+  const signup = (companyName, userId, password) => {
+    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
+    if (users[userId]) {
+      return false; // User already exists
+    }
+    const newUser = { userId, username: userId, password, plan: null, pagesPrinted: 0, companyName, subscriptionDate: null };
+    users[userId] = newUser;
+    localStorage.setItem('usersDB', JSON.stringify(users));
+    return true; // Successfully registered, but don't log them in yet
+  };
+
+  const generateResetCode = (userId) => {
+    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
+    if (!users[userId]) return false;
+    // For demo purposes, we always generate '123456' or could generate random
+    const code = '123456'; 
+    localStorage.setItem('resetCode_' + userId, code);
+    return code;
+  };
+
+  const resetPassword = (userId, newPassword) => {
+    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
+    if (users[userId]) {
+      users[userId].password = newPassword;
+      localStorage.setItem('usersDB', JSON.stringify(users));
       return true;
     }
-
-    // User found but password wrong → stale record, reset and re-register fresh
-    // (internal app: no sensitive data, avoids permanent lockout from stale localStorage)
-    const freshUser = { username, password, plan: null, pagesPrinted: 0, companyName: '', subscriptionDate: null };
-    setCurrentUser(freshUser);
-    return true;
+    return false;
   };
 
   const logout = () => {
-    if (currentUser) {
-      // Remove this user's saved data so next login starts fresh
-      const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-      delete users[currentUser.username];
-      localStorage.setItem('usersDB', JSON.stringify(users));
-    }
     setCurrentUser(null);
   };
 
@@ -78,6 +89,9 @@ export const AuthProvider = ({ children }) => {
       currentUser,
       login,
       logout,
+      signup,
+      generateResetCode,
+      resetPassword,
       updatePlan,
       updateCompanyName,
       incrementPagesPrinted

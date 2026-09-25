@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ShieldCheck, Truck } from 'lucide-react';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -12,10 +12,10 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (login(username, password)) {
+    if (login(userId, password)) {
       navigate('/plans');
     } else {
-      setError('Invalid credentials');
+      setError('Invalid User ID or Password');
     }
   };
 
@@ -38,24 +38,27 @@ export default function Login() {
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">User ID (Email or Mobile)</label>
               <input
                 type="text"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-teal focus:border-transparent outline-none transition"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                placeholder="name@example.com or 9876543210"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <Link to="/forgot-password" className="text-xs text-brand-teal hover:underline font-semibold">Forgot password?</Link>
+              </div>
               <input
                 type="password"
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-teal focus:border-transparent outline-none transition"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="admin123"
+                placeholder="••••••••"
                 required
               />
             </div>
@@ -67,9 +70,11 @@ export default function Login() {
               className="w-full bg-brand-teal hover:bg-teal-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition"
             >
               <ShieldCheck size={20} />
-              Login or Register
+              Login
             </button>
-            <p className="text-center text-xs text-gray-400 mt-4">New users will be registered automatically</p>
+            <p className="text-center text-sm text-gray-500 mt-4">
+              Don't have an account? <Link to="/signup" className="text-brand-teal font-semibold hover:underline">Sign up</Link>
+            </p>
           </form>
         </div>
       </div>

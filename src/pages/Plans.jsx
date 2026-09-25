@@ -108,18 +108,16 @@ export default function Plans() {
           )}
 
           {/* Plan 1 */}
-          {(!limitReached || isExpired) && (
-            <div 
-              onClick={() => handleSelectPlan('299')}
-              className="border-2 rounded-xl p-4 cursor-pointer border-gray-200 hover:border-brand-teal transition"
-            >
-              <div className="flex justify-between items-center mb-1">
-                <h3 className="font-bold text-lg">Standard</h3>
-                <div className="text-brand-teal font-extrabold text-xl">₹299</div>
-              </div>
-              <p className="text-sm text-gray-500">Up to <span className="font-bold text-slate-700">10,000</span> pages print &bull; Renew after 1 month</p>
+          <div 
+            onClick={() => handleSelectPlan('299')}
+            className="border-2 rounded-xl p-4 cursor-pointer border-gray-200 hover:border-brand-teal transition"
+          >
+            <div className="flex justify-between items-center mb-1">
+              <h3 className="font-bold text-lg">Standard</h3>
+              <div className="text-brand-teal font-extrabold text-xl">₹299</div>
             </div>
-          )}
+            <p className="text-sm text-gray-500">Up to <span className="font-bold text-slate-700">10,000</span> pages print &bull; Renew after 1 month</p>
+          </div>
 
           {/* Plan 2 */}
           <div 

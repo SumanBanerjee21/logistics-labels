@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Truck, Settings, Maximize, CheckCircle, LogOut, ChevronDown } from 'lucide-react';
+import { Truck, Settings, Maximize, CheckCircle, ArrowLeft, LogOut, ChevronDown } from 'lucide-react';
 
 export default function Dashboard() {
   const [docket, setDocket] = useState('');
@@ -84,9 +84,14 @@ export default function Dashboard() {
               </h1>
             </div>
           </div>
-          <button onClick={handleLogout} className="p-2 bg-gray-100 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-50 transition" title="Logout">
-            <LogOut size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate(-1)} className="p-2 bg-gray-100 rounded-full text-gray-500 hover:text-brand-teal hover:bg-teal-50 transition" title="Go Back">
+              <ArrowLeft size={20} />
+            </button>
+            <button onClick={handleLogout} className="p-2 bg-gray-100 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-50 transition" title="Logout">
+              <LogOut size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Title */}
@@ -163,7 +168,20 @@ export default function Dashboard() {
                   className={`w-full px-4 py-3 rounded-xl border bg-white focus:ring-2 focus:border-transparent outline-none transition ${boxError ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:ring-brand-orange'}`}
                   placeholder="10"
                   value={boxes}
-                  onChange={(e) => { setBoxes(e.target.value); setBoxError(''); }}
+                  onInvalid={(e) => {
+                    if (e.target.validity.rangeOverflow && isFreePlan) {
+                      e.target.setCustomValidity(`Value must be less than or equal to ${remaining} for free version`);
+                    } else if (e.target.validity.rangeOverflow) {
+                      e.target.setCustomValidity(`Value must be less than or equal to ${remaining}`);
+                    }
+                  }}
+                  onInput={(e) => { 
+                    e.target.setCustomValidity(''); 
+                  }}
+                  onChange={(e) => { 
+                    setBoxes(e.target.value); 
+                    setBoxError(''); 
+                  }}
                 />
                 {boxError && (
                   <p className="mt-1.5 text-xs text-red-500 font-medium">{boxError}</p>
