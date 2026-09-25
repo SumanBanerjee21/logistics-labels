@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { API_URL } from '../config';
 
 export const AuthContext = createContext();
 
@@ -7,86 +8,116 @@ export const AuthProvider = ({ children }) => {
     const saved = localStorage.getItem('currentUser');
     return saved ? JSON.parse(saved) : null;
   });
+  const [token, setToken] = useState(() => localStorage.getItem('authToken'));
 
-  // Save current user to localStorage whenever it changes
+  // Persist user and token in localStorage
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      // Also update the users database
-      const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-      users[currentUser.username] = currentUser;
-      localStorage.setItem('usersDB', JSON.stringify(users));
     } else {
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('authToken');
     }
   }, [currentUser]);
 
-  const login = (userId, password) => {
-    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-    const user = users[userId];
+  // Helper: authenticated fetch
+  const authFetch = (path, options = {}) =>
+    fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
+      },
+    });
 
-    if (user && user.password === password) {
-      setCurrentUser(user);
-      return true;
-    }
-    return false; // Real login: fail if wrong credentials
+  // ─── SIGNUP ──────────────────────────────────────────────────────────────
+  const signup = async (companyName, userId, password) => {
+    const res = await fetch(`${API_URL}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyName, userId, password }),
+    });
+    return res.ok; // true = success, false = userId already exists
   };
 
-  const signup = (companyName, userId, password) => {
-    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-    if (users[userId]) {
-      return false; // User already exists
-    }
-    const newUser = { userId, username: userId, password, plan: null, pagesPrinted: 0, companyName, subscriptionDate: null };
-    users[userId] = newUser;
-    localStorage.setItem('usersDB', JSON.stringify(users));
-    return true; // Successfully registered, but don't log them in yet
+  // ─── LOGIN ────────────────────────────────────────────────────────────────
+  const login = async (userId, password) => {
+    const res = await fetch(`${API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, password }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    localStorage.setItem('authToken', data.token);
+    setToken(data.token);
+    setCurrentUser(data.user);
+    return true;
   };
 
-  const generateResetCode = (userId) => {
-    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-    if (!users[userId]) return false;
-    // For demo purposes, we always generate '123456' or could generate random
-    const code = '123456'; 
-    localStorage.setItem('resetCode_' + userId, code);
-    return code;
-  };
-
-  const resetPassword = (userId, newPassword) => {
-    const users = JSON.parse(localStorage.getItem('usersDB') || '{}');
-    if (users[userId]) {
-      users[userId].password = newPassword;
-      localStorage.setItem('usersDB', JSON.stringify(users));
-      return true;
-    }
-    return false;
-  };
-
+  // ─── LOGOUT ───────────────────────────────────────────────────────────────
   const logout = () => {
     setCurrentUser(null);
+    setToken(null);
   };
 
-  const updatePlan = (plan) => {
-    // When upgrading/renewing, reset the page count if they are starting a new paid month
-    setCurrentUser(prev => ({ 
-      ...prev, 
-      plan,
-      subscriptionDate: Date.now(),
-      pagesPrinted: plan !== 'free' ? 0 : prev.pagesPrinted // Optional: reset count on renewal
-    }));
+  // ─── FORGOT PASSWORD: SEND CODE ───────────────────────────────────────────
+  const generateResetCode = async (userId) => {
+    const res = await fetch(`${API_URL}/api/auth/forgot/send-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.code; // For demo: backend returns the code
   };
 
+  // ─── FORGOT PASSWORD: RESET ───────────────────────────────────────────────
+  const resetPassword = async (userId, code, newPassword) => {
+    const res = await fetch(`${API_URL}/api/auth/forgot/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, code, newPassword }),
+    });
+    return res.ok;
+  };
+
+  // ─── UPDATE PLAN (called after successful Razorpay payment) ───────────────
+  const updatePlan = async (plan) => {
+    const res = await authFetch('/api/auth/update-plan', {
+      method: 'PATCH',
+      body: JSON.stringify({ plan }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setCurrentUser(data.user);
+    }
+  };
+
+  // ─── UPDATE COMPANY NAME ──────────────────────────────────────────────────
+  // Company name is set at signup; this is kept for Setup page compatibility
   const updateCompanyName = (companyName) => {
-    setCurrentUser(prev => ({ ...prev, companyName }));
+    setCurrentUser((prev) => ({ ...prev, companyName }));
   };
 
-  const incrementPagesPrinted = (count) => {
-    setCurrentUser(prev => ({ ...prev, pagesPrinted: prev.pagesPrinted + count }));
+  // ─── INCREMENT PAGES PRINTED ──────────────────────────────────────────────
+  const incrementPagesPrinted = async (count) => {
+    const res = await authFetch('/api/auth/increment-pages', {
+      method: 'PATCH',
+      body: JSON.stringify({ count }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setCurrentUser((prev) => ({ ...prev, pagesPrinted: data.pagesPrinted }));
+    }
   };
 
   return (
     <AuthContext.Provider value={{
       currentUser,
+      token,
       login,
       logout,
       signup,
@@ -94,7 +125,7 @@ export const AuthProvider = ({ children }) => {
       resetPassword,
       updatePlan,
       updateCompanyName,
-      incrementPagesPrinted
+      incrementPagesPrinted,
     }}>
       {children}
     </AuthContext.Provider>

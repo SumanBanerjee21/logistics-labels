@@ -12,7 +12,7 @@ export default function SignUp() {
   const navigate = useNavigate();
   const { signup } = useContext(AuthContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Basic regex for 10 digit mobile OR valid email
@@ -29,7 +29,8 @@ export default function SignUp() {
       return;
     }
     
-    if (signup(companyName, userId, password)) {
+    const success = await signup(companyName, userId, password);
+    if (success) {
       alert("Registration successful! Please log in.");
       navigate('/login');
     } else {

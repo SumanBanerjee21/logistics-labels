@@ -10,9 +10,10 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (login(userId, password)) {
+    const success = await login(userId, password);
+    if (success) {
       navigate('/plans');
     } else {
       setError('Invalid User ID or Password');
