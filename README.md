@@ -1,4 +1,4 @@
-# Banerjee Services - Label Printing Web App
+# Rudrax Logistics Services - Label Printing Web App
 
 A responsive React web application built for logistics label printing, featuring a secure login, a free tier of 10 pages, subscription plans, and print preview generation.
 
