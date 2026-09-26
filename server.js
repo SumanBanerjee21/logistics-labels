@@ -18,10 +18,17 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json());
+// Allow larger JSON payloads for logo uploads
+app.use(express.json({
+  limit: '2mb',
+}));
 
 // Health check
-app.get('/', (req, res) => res.json({ status: 'Logistics API is running ✅' }));
+app.get('/', (req, res) => {
+  res.json({
+    status: 'Logistics API is running ✅',
+  });
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -32,8 +39,12 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
+
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
   })
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err.message);
