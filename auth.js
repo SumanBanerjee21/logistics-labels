@@ -7,9 +7,14 @@ const router = express.Router();
 // Helper: generate JWT
 const signToken = (user) =>
   jwt.sign(
-    { id: user._id, userId: user.userId },
+    {
+      id: user._id,
+      userId: user.userId,
+    },
     process.env.JWT_SECRET,
-    { expiresIn: '30d' }
+    {
+      expiresIn: '30d',
+    }
   );
 
 // Helper: sanitize user
@@ -40,7 +45,6 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    // Validate logo if provided
     if (logo) {
       if (
         typeof logo !== 'string' ||
@@ -66,7 +70,7 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    const user = await User.create({
+    await User.create({
       companyName,
       userId,
       password,
